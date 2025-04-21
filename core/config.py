@@ -1,5 +1,10 @@
 from pydantic_settings import BaseSettings
 from typing import List
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Invoice Generator API"
@@ -15,14 +20,13 @@ class Settings(BaseSettings):
     TEMP_DIR: str = "temp"
     
     # MongoDB Configuration
-    # MONGODB_URL: str = "mongodb://localhost:27017"
-    # MONGODB_DB_NAME: str = "invoice_db"
-    # MONGODB_USERNAME: str | None = None
-    # MONGODB_PASSWORD: str | None = None
+    MONGODB_URL: str
+    MONGODB_DB_NAME: str = "invoices"
     
     class Config:
         case_sensitive = True
         env_file = ".env"
+        env_file_encoding = "utf-8"
 
     
 

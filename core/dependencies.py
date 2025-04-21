@@ -10,12 +10,11 @@
 #     finally:
 #         await repo.close()
 
-# async def get_invoice_service(
-#     repository: MongoDBRepository = Depends(get_repository)
-# ) -> InvoiceService:
-#     """
-#     Creates an InvoiceService instance with the repository dependency
-#     """
-#     # Ensure repository is connected
-#     await repository.connect()
-#     return InvoiceService(repository=repository) 
+from fastapi import Depends
+from services.invoice_service import InvoiceService
+
+async def get_invoice_service() -> InvoiceService:
+    """
+    Creates an InvoiceService instance
+    """
+    return InvoiceService() 
