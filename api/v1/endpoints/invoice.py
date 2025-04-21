@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.post("/generate")
 async def generate_invoice(
-    invoice_data: Invoice,  # JSON automatically converted to InvoiceCreate
+    invoice_data: Invoice,  # JSON automatically converted to Invoice
     # service: InvoiceService # = Depends(get_invoice_service)  # Automatically injected
 ):
     service = InvoiceService()

@@ -2,7 +2,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 
-from app.schemas.invoice import Invoice
+from schemas.invoice import Invoice
 
 class PDFCreator:
     # Create a PDF with A4 page size
@@ -35,7 +35,7 @@ def company_details(pdf_creator):
     pdf_creator.pdf.drawString(60, pdf_creator.height - 250, "TEL: XXXXXXXXXX")
     pdf_creator.pdf.drawString(60, pdf_creator.height - 270, "EMAIL: <email_value>")
 
-def customer_details(pdf_creator, invoice_data: Invoice):
+def customer_details(pdf_creator):
     # Customer details
     pdf_creator.draw_rect(350, pdf_creator.height - 275, 200, 110)
     pdf_creator.pdf.setFont("Helvetica", 15)
@@ -52,7 +52,7 @@ def invoice_number_and_date(pdf_creator, invoice_data: Invoice):
     pdf_creator.draw_rect(50, pdf_creator.height - 360, 120, 20)
     pdf_creator.pdf.drawString(55, pdf_creator.height - 315, "Nº FACTURA")
     pdf_creator.draw_rect(170, pdf_creator.height - 360, 100, 20)
-    pdf_creator.pdf.drawString(245, pdf_creator.height - 315, str(invoice_data.invoice_number))
+    pdf_creator.pdf.drawString(245, pdf_creator.height - 315, str(invoice_data.number))
     
     pdf_creator.draw_rect(50, pdf_creator.height - 340, 120, 20)
     pdf_creator.pdf.drawString(55, pdf_creator.height - 335, "FECHA FACTURA")
@@ -86,24 +86,24 @@ def create_description(pdf_creator, invoice_data: Invoice):
     line_spacing = 15
 
     # variable
-    if len(invoice_data.service_description) >= 50:
-        pdf_creator.pdf.drawString(55, pdf_creator.height - 445, invoice_data.service_description[:50]) # analize last word to avoid cut
-        pdf_creator.pdf.drawString(55, pdf_creator.height - 460, invoice_data.service_description[51:])
+    if len(invoice_data.client_info.description) >= 50:
+        pdf_creator.pdf.drawString(55, pdf_creator.height - 445, invoice_data.client_info.description[:50]) # analize last word to avoid cut
+        pdf_creator.pdf.drawString(55, pdf_creator.height - 460, invoice_data.client_info.description[51:])
     else:
-        pdf_creator.pdf.drawString(55, pdf_creator.height - 445, invoice_data.service_description[:50])
+        pdf_creator.pdf.drawString(55, pdf_creator.height - 445, invoice_data.client_info.description[:50])
     
     # variable
-    if len(invoice_data.address) >= 50:
-        pdf_creator.pdf.drawString(55, pdf_creator.height - 485, invoice_data.address[:50])
-        pdf_creator.pdf.drawString(55, pdf_creator.height - 500, invoice_data.address[51:])    
+    if len(invoice_data.client_info.description_street) >= 50:
+        pdf_creator.pdf.drawString(55, pdf_creator.height - 485, invoice_data.client_info.description_street[:50])
+        pdf_creator.pdf.drawString(55, pdf_creator.height - 500, invoice_data.client_info.description_street[51:])    
     else:
-        pdf_creator.pdf.drawString(55, pdf_creator.height - 485, invoice_data.address[:50])
+        pdf_creator.pdf.drawString(55, pdf_creator.height - 485, invoice_data.client_info.description_street[:50])
     
     # fixed
     pdf_creator.pdf.drawString(55, pdf_creator.height - 525, f"MES DE {invoice_data.month}")
 
-    pdf_creator.pdf.drawString(300, pdf_creator.height - 495, invoice_data.price_per_hour)
-    pdf_creator.pdf.drawString(400, pdf_creator.height - 510, invoice_data.total_price)
+    # pdf_creator.pdf.drawString(400, pdf_creator.height - 510, str(invoice_data.client_info.price_per_hour)) # not implemented yet
+    pdf_creator.pdf.drawString(475, pdf_creator.height - 510, f"{invoice_data.client_info.total_price_description:.2f}")
 
 def payment_details(pdf_creator, invoice_data: Invoice):
     # Payment and totals
@@ -112,32 +112,32 @@ def payment_details(pdf_creator, invoice_data: Invoice):
     pdf_creator.pdf.drawString(360, pdf_creator.height - 590, "IMPORTE NETO")
     
     pdf_creator.draw_rect(450, pdf_creator.height - 600, 95, 25)  # net import amount box 
-    pdf_creator.pdf.drawString(460, pdf_creator.height - 590, f"{invoice_data.net_amount} €")
+    pdf_creator.pdf.drawString(475, pdf_creator.height - 590, f"{invoice_data.client_info.net_price:.2f} €")
     
     pdf_creator.draw_rect(350, pdf_creator.height - 625, 100, 25)  # iva box 
     pdf_creator.pdf.drawString(360, pdf_creator.height - 615, "IVA 21%")
     
     pdf_creator.draw_rect(450, pdf_creator.height - 625, 95, 25)  # iva value box 
-    pdf_creator.pdf.drawString(460, pdf_creator.height - 615, f"{invoice_data.vat} €")
+    pdf_creator.pdf.drawString(475, pdf_creator.height - 615, f"{invoice_data.client_info.vat21:.2f} €")
     
     pdf_creator.draw_rect(350, pdf_creator.height - 650, 100, 25)  # import box  
     pdf_creator.pdf.drawString(360, pdf_creator.height - 640, "IMPORTE TOTAL")
     
     pdf_creator.draw_rect(450, pdf_creator.height - 650, 95, 25)  # import value
-    pdf_creator.pdf.drawString(460, pdf_creator.height - 640, f"{invoice_data.total_amount} €")
+    pdf_creator.pdf.drawString(475, pdf_creator.height - 640, f"{invoice_data.client_info.total_price:.2f} €")
 
 def bank_details(pdf_creator, invoice_data: Invoice):
     # Bank details
     pdf_creator.pdf.drawString(55, pdf_creator.height - 580, "CONDICIONES:")
-    pdf_creator.pdf.drawString(200, pdf_creator.height - 580, invoice_data.payment_condition)
+    pdf_creator.pdf.drawString(200, pdf_creator.height - 580, invoice_data.client_info.condition)
     pdf_creator.pdf.drawString(55, pdf_creator.height - 615, "VENCIMIENTO:")
-    pdf_creator.pdf.drawString(200, pdf_creator.height - 615, invoice_data.due_date)
+    pdf_creator.pdf.drawString(200, pdf_creator.height - 615, invoice_data.deadline)
     pdf_creator.pdf.drawString(55, pdf_creator.height - 650, "FORMA DE PAGO:")
-    pdf_creator.pdf.drawString(200, pdf_creator.height - 650, invoice_data.payment_method)
+    pdf_creator.pdf.drawString(200, pdf_creator.height - 650, invoice_data.client_info.payment_method)
     pdf_creator.pdf.drawString(55, pdf_creator.height - 685, "CTA. CTE:")
-    pdf_creator.pdf.drawString(200, pdf_creator.height - 685, invoice_data.account_number)
+    pdf_creator.pdf.drawString(200, pdf_creator.height - 685, invoice_data.client_info.account_number)
     pdf_creator.pdf.drawString(55, pdf_creator.height - 720, "IBAN:")
-    pdf_creator.pdf.drawString(200, pdf_creator.height - 720, invoice_data.iban)
+    pdf_creator.pdf.drawString(200, pdf_creator.height - 720, invoice_data.client_info.iban)
 
 def footer(pdf_creator):
     margin = 50
@@ -149,17 +149,16 @@ def footer(pdf_creator):
     pdf_creator.pdf.drawString(55, pdf_creator.height - 770, "ALFRED INGA RIOS")
     pdf_creator.pdf.drawString(485, pdf_creator.height - 770, "12345678-N")
 
-
 class InvoiceData:
     
     def create_invoice(self, invoice_data: Invoice):
-        pdf_creator = PDFCreator(filename=f"{invoice_data.invoice_number}.pdf")
+        pdf_creator = PDFCreator(filename=f"{invoice_data.number}.pdf")
         
         print("writting company details")
         company_details(pdf_creator)
         
         print("writting customer details")
-        customer_details(pdf_creator, invoice_data)
+        customer_details(pdf_creator)
 
         print("writting invoice number and date")
         invoice_number_and_date(pdf_creator, invoice_data)
