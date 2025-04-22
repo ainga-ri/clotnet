@@ -26,7 +26,7 @@ def company_details(pdf_creator):
     pdf_creator.pdf.setFillColor(colors.white)
     pdf_creator.pdf.rect(50, pdf_creator.height - 275, 220, 175, fill=True)
     # Then draw the image on top
-    pdf_creator.pdf.drawImage("app/services/company_name.png", 50, pdf_creator.height - 230, width=210, height=155, preserveAspectRatio=True, mask='auto')
+    pdf_creator.pdf.drawImage("services/company_name.png", 50, pdf_creator.height - 230, width=210, height=155, preserveAspectRatio=True, mask='auto')
     pdf_creator.pdf.setFillColor(colors.black)  # Reset fill color back to black
 
     pdf_creator.pdf.setFont("Helvetica", 11)
